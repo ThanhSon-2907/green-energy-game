@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Em là chiến sĩ năng lượng xanh</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            text-align: center; 
+            background-color: #e8f5e9;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2e7d32;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .drag-item { 
+            border: 2px solid #81c784; 
+            padding: 10px; 
+            margin: 10px; 
+            display: inline-block; 
+            cursor: move; 
+            background-color: #f1f8e9; 
+            width: 150px; 
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .drag-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #dcedc8;
+        }
+        
+        .drop-zone { 
+            border: 3px dashed #81c784; 
+            width: 250px; 
+            min-height: 300px; 
+            margin: 20px; 
+            display: inline-block; 
+            vertical-align: top; 
+            padding: 10px; 
+            border-radius: 10px;
+            background-color: #f1f8e9;
+            transition: background-color 0.3s;
+        }
+        
+        .drop-zone.highlight {
+            background-color: #c8e6c9;
+            border-color: #4caf50;
+        }
+        
+        #items { 
+            margin: 20px; 
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .drag-item img { 
+            width: 48px; 
+            height: 48px; 
+            margin-bottom: 5px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+        
+        .stat-box {
+            background-color: #c8e6c9;
+            padding: 10px 20px;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        
+        .instructions {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(46, 125, 50, 0.9);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            display: none;
+            z-index: 100;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .restart-btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .restart-btn:hover {
+            background-color: #1b5e20;
+        }
+        
+        .zone-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #1b5e20;
+        }
+        
+        .emoji {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Em là chiến sĩ năng lượng xanh</h1>
+        
+        <div class="instructions">
+            <p><strong>Mục tiêu:</strong> Kéo và thả hình ảnh vào ô năng lượng tương ứng để củng cố kiến thức về năng lượng mặt trời, gió và nước chảy.</p>
+            <p><strong>Luật chơi:</strong> Mỗi hình ảnh chỉ thuộc về một loại năng lượng. Kéo đúng được 1 điểm. Hoàn thành tất cả trước khi hết giờ để nhận phần thưởng!</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">Thời gian: <span id="timer">2:00</span></div>
+            <div class="stat-box">Điểm: <span id="score">0</span>/10</div>
+        </div>
+
+        <div id="items">
+            <div class="drag-item" draggable="true" id="img1"><img src="https://img.icons8.com/color/48/street-light.png" alt="Đèn đường sử dụng pin mặt trời"><br>Đèn đường sử dụng pin mặt trời</div>
+            <div class="drag-item" draggable="true" id="img2"><img src="https://img.icons8.com/color/48/sail-boat.png" alt="Thuyền buồm"><br>Thuyền buồm</div>
+            <div class="drag-item" draggable="true" id="img3"><img src="https://www.freeiconspng.com/uploads/electric-car-charging-icon-3.png" alt="Xe điện đang sạc tại trạm sạc có pin mặt trời và tuabin gió"><br>Xe điện đang sạc tại trạm sạc có pin mặt trời và tuabin gió</div>
+            <div class="drag-item" draggable="true" id="img4"><img src="https://img.icons8.com/color/48/wind-turbine.png" alt="Nhà máy điện gió"><br>Nhà máy điện gió</div>
+            <div class="drag-item" draggable="true" id="img5"><img src="https://www.freeiconspng.com/uploads/hydroelectric-dam-icon-1.png" alt="Nhà máy thủy điện"><br>Nhà máy thủy điện</div>
+            <div class="drag-item" draggable="true" id="img6"><img src="https://img.icons8.com/color/48/water-mill.png" alt="Cọn nước (bánh xe nước)"><br>Cọn nước (bánh xe nước)</div>
+            <div class="drag-item" draggable="true" id="img7"><img src="https://img.icons8.com/color/48/rafting.png" alt="Rafting trên sông nước chảy mạnh"><br>Rafting trên sông nước chảy mạnh</div>
+            <div class="drag-item" draggable="true" id="img8"><img src="https://png.pngtree.com/png-clipart/20250718/original/pngtree-farmer-drying-harvested-grains-in-the-sun-png-image_21405335.png" alt="Phơi thóc/lúa"><br>Phơi thóc/lúa</div>
+            <div class="drag-item" draggable="true" id="img9"><img src="https://img.icons8.com/color/48/salt-shaker.png" alt="Làm muối từ nước biển"><br>Làm muối từ nước biển</div>
+            <div class="drag-item" draggable="true" id="img10"><img src="https://img.icons8.com/color/48/solar-panel.png" alt="Bếp năng lượng mặt trời"><br>Bếp năng lượng mặt trời</div>
+        </div>
+
+        <div class="drop-zones">
+            <div class="drop-zone" id="sun">
+                <div class="zone-title"><span class="emoji">🌞</span> NĂNG LƯỢNG MẶT TRỜI</div>
+                <div class="zone-instruction">(Kéo hình ảnh vào đây)</div>
+            </div>
+            <div class="drop-zone" id="wind">
+                <div class="zone-title"><span class="emoji">🌬️</span> NĂNG LƯỢNG GIÓ</div>
+                <div class="zone-instruction">(Kéo hình ảnh vào đây)</div>
+            </div>
+            <div class="drop-zone" id="water">
+                <div class="zone-title"><span class="emoji">💧</span> NĂNG LƯỢNG NƯỚC CHẢY</div>
+                <div class="zone-instruction">(Kéo hình ảnh vào đây)</div>
+            </div>
+        </div>
+        
+        <button class="restart-btn" id="restart">Chơi lại</button>
+    </div>
+    
+    <div class="feedback" id="feedback"></div>
+
+    <script>
+        const correct = {
+            'sun': ['img1', 'img8', 'img9', 'img10', 'img3'],
+            'wind': ['img2', 'img4', 'img3'],
+            'water': ['img5', 'img6', 'img7']
+        };
+
+        let score = 0;
+        const scoreElem = document.getElementById('score');
+        const timerElem = document.getElementById('timer');
+        let time = 120; // 2 phút
+        let gameInterval;
+        let gameActive = true;
+        const feedbackElem = document.getElementById('feedback');
+        const restartBtn = document.getElementById('restart');
+
+        function startGame() {
+            // Reset game state
+            score = 0;
+            time = 120;
+            gameActive = true;
+            scoreElem.textContent = '0';
+            timerElem.textContent = '2:00';
+            feedbackElem.style.display = 'none';
+            
+            // Clear any existing interval
+            if (gameInterval) {
+                clearInterval(gameInterval);
+            }
+            
+            // Move all items back to the items container
+            const itemsContainer = document.getElementById('items');
+            document.querySelectorAll('.drag-item').forEach(item => {
+                itemsContainer.appendChild(item);
+            });
+            
+            // Start timer
+            gameInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (!gameActive) return;
+            
+            time--;
+            const min = Math.floor(time / 60);
+            const sec = time % 60;
+            timerElem.textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            
+            if (time <= 0) {
+                endGame(false);
+            }
+        }
+
+        function endGame(isWin) {
+            gameActive = false;
+            clearInterval(gameInterval);
+            
+            if (isWin) {
+                const timeTaken = 120 - time;
+                feedbackElem.textContent = `Chúc mừng! Bạn hoàn thành trong ${timeTaken} giây!`;
+                feedbackElem.style.display = 'block';
+                setTimeout(() => { feedbackElem.style.display = 'none'; }, 3000);
+            } else {
+                feedbackElem.textContent = `Hết thời gian! Điểm: ${score}/10`;
+                feedbackElem.style.display = 'block';
+                setTimeout(() => { feedbackElem.style.display = 'none'; }, 3000);
+            }
+        }
+
+        // Drag and drop functionality
+        const zones = document.querySelectorAll('.drop-zone');
+        zones.forEach(zone => {
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('highlight');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('highlight');
+            });
+            
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('highlight');
+                
+                if (!gameActive) return;
+                
+                const id = e.dataTransfer.getData('text/plain');
+                const elem = document.getElementById(id);
+                
+                if (correct[zone.id].includes(id)) {
+                    // Check if item is already in a zone
+                    if (!elem.parentElement.classList.contains('drop-zone')) {
+                        zone.appendChild(elem);
+                        score++;
+                        scoreElem.textContent = score;
+                        
+                        // Show feedback
+                        feedbackElem.textContent = 'Chính xác! +1 điểm';
+                        feedbackElem.style.display = 'block';
+                        setTimeout(() => { feedbackElem.style.display = 'none'; }, 1000);
+                        
+                        if (score === 10) {
+                            endGame(true);
+                        }
+                    }
+                } else {
+                    // Wrong answer feedback
+                    feedbackElem.textContent = 'Sai rồi! Thử lại nhé';
+                    feedbackElem.style.backgroundColor = 'rgba(198, 40, 40, 0.9)';
+                    feedbackElem.style.display = 'block';
+                    setTimeout(() => { 
+                        feedbackElem.style.display = 'none';
+                        feedbackElem.style.backgroundColor = 'rgba(46, 125, 50, 0.9)';
+                    }, 1000);
+                }
+            });
+        });
+
+        document.querySelectorAll('.drag-item').forEach(item => {
+            item.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', item.id);
+            });
+        });
+
+        restartBtn.addEventListener('click', startGame);
+
+        // Initialize game
+        startGame();
+    </script>
+</body>
+</html>
